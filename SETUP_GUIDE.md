@@ -100,6 +100,7 @@ survey-laravel-nuxt-mvp/
 ### ✅ Completed Components
 
 #### Backend (Laravel 12)
+
 - **✅ Framework**: Laravel 12.32.5 installed
 - **✅ Authentication**: Laravel Sanctum 4.2.0 configured
 - **✅ Database**: SQLite database created with migrations
@@ -110,6 +111,7 @@ survey-laravel-nuxt-mvp/
 - **✅ Code Quality**: Laravel Pint included
 
 #### Created Files
+
 ```
 backend/
 ├── app/
@@ -134,21 +136,48 @@ backend/
 │       ├── 2025_10_06_041250_create_surveys_table.php
 │       └── 2025_10_06_040235_create_personal_access_tokens_table.php
 └── routes/
-    └── api.php                             # API routes (to be configured)
+    └── api.php                             # API routes (configured with v1 namespace)
 ```
 
 #### Database Schema
+
 - **users table**: Standard Laravel users with Sanctum support
 - **personal_access_tokens table**: Sanctum token storage
 - **surveys table**: Survey data storage
 
+#### API Routes Configured
+
+The following API routes are registered with proper authentication middleware:
+
+**Public Routes (No Authentication Required):**
+- `POST /api/v1/register` - User registration
+- `POST /api/v1/login` - User login
+- `GET /api/v1/sanctum/csrf-cookie` - CSRF cookie for SPA authentication
+
+**Protected Routes (Authentication Required):**
+- `POST /api/v1/logout` - User logout
+- `GET /api/v1/user` - Get authenticated user info
+- `GET /api/v1/surveys` - List all surveys
+- `POST /api/v1/surveys` - Create new survey
+- `GET /api/v1/surveys/{id}` - Get specific survey
+- `PUT /api/v1/surveys/{id}` - Update survey
+- `DELETE /api/v1/surveys/{id}` - Delete survey
+
+**Security Features:**
+- Rate limiting applied to all API routes (60 requests per minute)
+- Sanctum authentication middleware on protected routes
+- CSRF protection for web routes
+- Input validation via Form Requests
+
 ### 🔄 In Progress
-- API route configuration
+
+- ✅ API routes configured with proper middleware
 - Controller implementation
 - Frontend Nuxt.js setup
 
 ### 📋 Next Steps
-1. Configure API routes with proper middleware
+
+1. ✅ Configure API routes with proper middleware
 2. Implement authentication endpoints
 3. Implement survey CRUD operations
 4. Set up Nuxt.js 4 frontend
@@ -1206,6 +1235,7 @@ Remember to:
 ## Current Implementation Notes
 
 ### Libraries and Versions Used
+
 - **Laravel**: 12.32.5 (latest stable)
 - **Laravel Sanctum**: 4.2.0 (for API authentication)
 - **Spatie Laravel Query Builder**: 6.3.5 (for advanced API filtering)
@@ -1214,6 +1244,7 @@ Remember to:
 - **Tailwind CSS**: v4 (next generation, to be implemented)
 
 ### Architecture Decisions
+
 - **Monorepo Structure**: Single repository with backend/ and frontend/ directories
 - **API Versioning**: v1 namespace for future-proofing
 - **Testing**: PHPUnit for backend (instead of Pest due to compatibility issues)
@@ -1221,6 +1252,7 @@ Remember to:
 - **Authentication**: Token-based with Laravel Sanctum for SPA integration
 
 ### Security Features Implemented
+
 - **CSRF Protection**: Enabled for web routes
 - **Rate Limiting**: Applied to API routes (60 requests per minute)
 - **Input Validation**: Form Requests for all API endpoints
@@ -1228,6 +1260,7 @@ Remember to:
 - **XSS Protection**: Output escaping in templates
 
 ### Performance Considerations
+
 - **OPcache**: Enabled in production for PHP optimization
 - **Database Indexing**: To be implemented for frequently queried fields
 - **API Caching**: To be implemented using Laravel Cache
