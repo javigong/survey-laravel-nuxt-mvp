@@ -3,47 +3,81 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreSurveyRequest;
+use App\Http\Resources\SurveyResource;
+use App\Models\Survey;
+use Illuminate\Http\JsonResponse;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class SurveyController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the authenticated user's surveys.
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $surveys = QueryBuilder::for(Survey::class)
+            ->where('user_id', auth()->id())
+            ->allowedFilters(['title', 'status'])
+            ->allowedSorts(['created_at', 'title', 'updated_at'])
+            ->paginate(15);
+
+        return SurveyResource::collection($surveys)->response();
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created survey.
      */
-    public function store(Request $request)
+    public function store(StoreSurveyRequest $request): JsonResponse
     {
-        //
+        $survey = Survey::create([
+            'user_id' => auth()->id(),
+            'title' => $request->title,
+            'description' => $request->description,
+            'status' => $request->status ?? 'draft',
+        ]);
+
+        return SurveyResource::make($survey)
+            ->response()
+            ->setStatusCode(201);
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified survey.
      */
-    public function show(string $id)
+    public function show(Survey $survey): JsonResponse
     {
-        //
+        // Ensure the survey belongs to the authenticated user
+        $this->authorize('view', $survey);
+
+        return SurveyResource::make($survey)->response();
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified survey.
      */
-    public function update(Request $request, string $id)
+    public function update(StoreSurveyRequest $request, Survey $survey): JsonResponse
     {
-        //
+        // Ensure the survey belongs to the authenticated user
+        $this->authorize('update', $survey);
+
+        $survey->update($request->validated());
+
+        return SurveyResource::make($survey)->response();
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified survey.
      */
-    public function destroy(string $id)
+    public function destroy(Survey $survey): JsonResponse
     {
-        //
+        // Ensure the survey belongs to the authenticated user
+        $this->authorize('delete', $survey);
+
+        $survey->delete();
+
+        return response()->json([
+            'message' => 'Survey deleted successfully'
+        ]);
     }
 }
