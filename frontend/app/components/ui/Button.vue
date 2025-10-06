@@ -9,8 +9,8 @@
 </template>
 
 <script setup lang="ts">
-import { cn } from '~/lib/utils'
-import { buttonVariants } from '~/lib/variants'
+import { cn } from '../../../lib/utils'
+import { buttonVariants } from '../../../lib/variants'
 
 interface Props {
   variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
