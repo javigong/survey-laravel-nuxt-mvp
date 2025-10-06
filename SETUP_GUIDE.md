@@ -48,20 +48,41 @@ survey-laravel-nuxt-mvp/
 │   ├── .env.example
 │   └── composer.json
 ├── frontend/                   # Nuxt.js 4 SPA
-│   ├── components/
-│   │   ├── UI/
-│   │   ├── Forms/
-│   │   └── Survey/
-│   ├── composables/
-│   ├── layouts/
-│   ├── middleware/
-│   ├── pages/
-│   ├── plugins/
-│   ├── stores/                 # Pinia stores
-│   ├── types/                  # TypeScript definitions
-│   ├── utils/
+│   ├── app/                    # Main app directory (Nuxt 4 convention)
+│   │   ├── app.vue            # Root component
+│   │   ├── composables/       # Auto-imported composables
+│   │   │   ├── useAuth.ts
+│   │   │   └── useSurvey.ts
+│   │   ├── stores/            # Pinia stores (auto-imported)
+│   │   │   ├── auth.ts
+│   │   │   └── survey.ts
+│   │   ├── pages/             # File-based routing
+│   │   │   ├── index.vue
+│   │   │   ├── login.vue
+│   │   │   ├── register.vue
+│   │   │   ├── dashboard.vue
+│   │   │   └── dashboard/
+│   │   │       └── surveys/
+│   │   │           ├── index.vue
+│   │   │           ├── create.vue
+│   │   │           └── [id]/
+│   │   │               └── edit.vue
+│   │   ├── components/        # Auto-imported components
+│   │   │   └── ui/            # UI components (shadcn-inspired)
+│   │   ├── utils/             # Utility functions
+│   │   │   └── lib/
+│   │   │       ├── utils.ts
+│   │   │       └── variants.ts
+│   │   └── middleware/        # Route middleware
+│   ├── assets/                # Static assets
+│   │   └── css/
+│   │       ├── main.css
+│   │       └── tailwind.css
+│   ├── public/                # Public files
 │   ├── .env.example
-│   ├── nuxt.config.ts
+│   ├── nuxt.config.ts         # Nuxt configuration
+│   ├── tailwind.config.ts     # Tailwind configuration
+│   ├── tsconfig.json          # TypeScript configuration
 │   └── package.json
 ├── docker-compose.yml          # Development environment
 ├── .gitignore
@@ -94,6 +115,105 @@ survey-laravel-nuxt-mvp/
 - **HTTP Client**: Built-in $fetch (Ofetch)
 - **Testing**: Vitest + Vue Test Utils
 - **TypeScript**: Full TypeScript support with better inference
+
+## Best Practices & Architecture Decisions
+
+### Nuxt 4 Folder Structure (App Directory Convention)
+
+**Why we use the `app/` directory:**
+
+- ✅ **Nuxt 4 Standard**: Official convention for better organization
+- ✅ **Auto-imports**: Composables and stores are automatically imported
+- ✅ **Clear Separation**: All app code in one directory
+- ✅ **Better Module Resolution**: Consistent relative imports within `app/`
+
+**Key Principles:**
+
+1. **Everything inside `app/`**: Components, composables, stores, pages, utils
+2. **Relative Imports**: Use `../composables/useAuth` within the `app/` directory
+3. **Auto-imports Config**: Nuxt automatically scans `app/composables/` and `app/stores/`
+4. **Type Safety**: TypeScript auto-completion works seamlessly
+
+### Laravel 12 Best Practices
+
+**API Structure:**
+
+```
+app/Http/
+├── Controllers/Api/V1/          # Versioned API controllers
+├── Requests/                    # Form Request validation
+├── Resources/                   # API response transformers
+└── Middleware/                  # Custom middleware
+```
+
+**Key Principles:**
+
+1. **API Versioning**: `/api/v1/` prefix for future-proof APIs
+2. **Form Requests**: Centralized validation with custom error messages
+3. **API Resources**: Consistent JSON response formatting
+4. **Policies**: Authorization logic separated from controllers
+5. **Sanctum Tokens**: Stateless authentication for API clients
+
+### Import Strategy (Nuxt 4)
+
+**✅ Correct Approach:**
+
+```typescript
+// In app/pages/login.vue
+import { useAuth } from "../composables/useAuth";
+import { useAuthStore } from "../stores/auth";
+```
+
+**❌ Avoid:**
+
+```typescript
+// Don't use ~/composables (causes module resolution issues)
+import { useAuth } from "~/composables/useAuth";
+
+// Don't use absolute paths from root
+import { useAuth } from "../../composables/useAuth";
+```
+
+**Why Relative Paths Work Best:**
+
+- ✅ No module resolution ambiguity
+- ✅ Works with Vite's hot module replacement (HMR)
+- ✅ Clear file relationships
+- ✅ Auto-imports still work for usage (not for definitions)
+
+### Security Best Practices
+
+**Backend (Laravel):**
+
+1. **CORS Configuration**: Properly configured in `config/cors.php`
+2. **Sanctum Middleware**: `auth:sanctum` protects all authenticated routes
+3. **Policy Authorization**: Check ownership before allowing actions
+4. **Input Validation**: All inputs validated via Form Requests
+5. **SQL Injection Protection**: Eloquent ORM prevents SQL injection
+
+**Frontend (Nuxt):**
+
+1. **Token Storage**: Tokens stored in localStorage (consider httpOnly cookies for production)
+2. **API Base URL**: Configured via environment variables
+3. **CSRF Protection**: Handled by Sanctum for SPA auth
+4. **XSS Prevention**: Vue's automatic escaping prevents XSS
+5. **Route Guards**: Middleware checks authentication state
+
+### Performance Optimizations
+
+**Nuxt:**
+
+- ✅ SSR enabled for better SEO and initial load
+- ✅ Auto-imports reduce bundle size
+- ✅ Component lazy loading for large pages
+- ✅ Pinia for efficient state management
+
+**Laravel:**
+
+- ✅ Query Builder with eager loading to prevent N+1 queries
+- ✅ API Resources for efficient JSON serialization
+- ✅ Database indexing on foreign keys
+- ✅ Response caching where appropriate
 
 ## Implementation Status
 
@@ -159,41 +279,46 @@ backend/
 
 ```
 frontend/
-├── app/
-│   ├── app.vue                              ✅ # Main app component with auth initialization
-│   └── components/ui/                       ✅ # Shadcn-inspired UI components
-│       ├── Button.vue                       ✅ # Reusable button component
-│       ├── Card.vue                         ✅ # Card container components
-│       ├── CardContent.vue
-│       ├── CardHeader.vue
-│       ├── CardTitle.vue
-│       ├── Input.vue                        ✅ # Form input component
-│   │   └── Label.vue                        ✅ # Form label component
-├── assets/css/
-│   ├── main.css                            ✅ # Main CSS with Tailwind utilities
-│   └── tailwind.css                        ✅ # Tailwind CSS base styles
-├── composables/
-│   ├── useAuth.ts                          ✅ # Authentication API composable
-│   └── useSurvey.ts                        ✅ # Survey CRUD API composable
-├── lib/
-│   ├── utils.ts                            ✅ # Utility functions (cn, etc.)
-│   └── variants.ts                         ✅ # Component variants (button variants)
-├── middleware/
-│   └── auth.ts                             ✅ # Authentication middleware
-├── pages/
-│   ├── index.vue                           ✅ # Redirect page based on auth status
-│   ├── login.vue                           ✅ # User login page
-│   ├── register.vue                        ✅ # User registration page
-│   └── dashboard.vue                       ✅ # Survey dashboard with CRUD
-├── plugins/
-│   └── persisted-state.client.ts           ✅ # Pinia persistence plugin
-├── stores/
-│   ├── auth.ts                             ✅ # Authentication state management
-│   └── survey.ts                           ✅ # Survey state management
-└── nuxt.config.ts                          ✅ # Nuxt configuration with all modules
+├── app/                                    # Main app directory (Nuxt 4 convention)
+│   ├── app.vue                            ✅ # Root component with auth initialization
+│   ├── composables/                       ✅ # Auto-imported composables
+│   │   ├── useAuth.ts                    ✅ # Authentication API composable
+│   │   └── useSurvey.ts                  ✅ # Survey CRUD API composable
+│   ├── stores/                           ✅ # Pinia stores (auto-imported)
+│   │   ├── auth.ts                       ✅ # Authentication state management
+│   │   └── survey.ts                     ✅ # Survey state management
+│   ├── pages/                            ✅ # File-based routing
+│   │   ├── index.vue                     ✅ # Home page with auth redirect
+│   │   ├── login.vue                     ✅ # User login page
+│   │   ├── register.vue                  ✅ # User registration page
+│   │   ├── dashboard.vue                 ✅ # Main dashboard
+│   │   └── dashboard/
+│   │       └── surveys/
+│   │           ├── index.vue             ✅ # Survey list with filters/search
+│   │           ├── create.vue            ✅ # Create new survey
+│   │           └── [id]/
+│   │               └── edit.vue          ✅ # Edit existing survey
+│   ├── components/ui/                    ✅ # Shadcn-inspired UI components
+│   │   ├── Button.vue                    ✅ # Reusable button component
+│   │   ├── Card.vue                      ✅ # Card container components
+│   │   ├── CardContent.vue
+│   │   ├── CardHeader.vue
+│   │   ├── CardTitle.vue
+│   │   ├── Input.vue                     ✅ # Form input component
+│   │   └── Label.vue                     ✅ # Form label component
+│   └── utils/lib/                        ✅ # Utility functions
+│       ├── utils.ts                      ✅ # Helper functions (cn, etc.)
+│       └── variants.ts                   ✅ # Component variants (button variants)
+├── assets/css/                           ✅ # Stylesheets
+│   ├── main.css                         ✅ # Main CSS with Tailwind utilities
+│   └── tailwind.css                     ✅ # Tailwind CSS base styles
+├── nuxt.config.ts                        ✅ # Nuxt configuration with all modules
+├── tailwind.config.ts                    ✅ # Tailwind CSS configuration
+└── package.json                          ✅ # Dependencies and scripts
 ```
 
 **Frontend Technology Stack:**
+
 - **Framework**: Nuxt.js 4.1.2 with TypeScript support
 - **State Management**: Pinia with persistence plugin
 - **UI Components**: Shadcn-inspired components with Tailwind CSS
@@ -1347,6 +1472,130 @@ Remember to:
 - **API Caching**: To be implemented using Laravel Cache
 - **CDN Integration**: Planned for static assets
 
+## Quick Reference Guide
+
+### Daily Development Commands
+
+**Start Development Servers:**
+
+```bash
+# Terminal 1: Backend (Laravel)
+cd backend && php artisan serve
+# Runs on http://localhost:8000
+
+# Terminal 2: Frontend (Nuxt)
+cd frontend && npm run dev
+# Runs on http://localhost:3000
+```
+
+**Database Operations:**
+
+```bash
+cd backend
+php artisan migrate              # Run migrations
+php artisan migrate:fresh        # Fresh migrations (drops all tables)
+php artisan migrate:fresh --seed # Fresh migrations with seeders
+php artisan db:seed              # Run seeders only
+```
+
+**Create New Files:**
+
+```bash
+# Backend
+php artisan make:controller Api/V1/ExampleController --api
+php artisan make:request StoreExampleRequest
+php artisan make:resource ExampleResource
+php artisan make:model Example -m           # With migration
+php artisan make:policy ExamplePolicy --model=Example
+
+# Frontend (manual creation in proper directories)
+# Create in app/pages/ for routes
+# Create in app/composables/ for composables
+# Create in app/stores/ for Pinia stores
+# Create in app/components/ for components
+```
+
+### Folder Structure Rules
+
+**Nuxt 4 (Frontend):**
+
+- ✅ **All code goes in `app/` directory**
+- ✅ **Use relative imports**: `../composables/useAuth`
+- ✅ **Auto-imports**: Composables and stores work without explicit imports in usage
+- ✅ **File-based routing**: Pages in `app/pages/` automatically become routes
+
+**Laravel 12 (Backend):**
+
+- ✅ **Controllers**: `app/Http/Controllers/Api/V1/`
+- ✅ **Requests**: `app/Http/Requests/`
+- ✅ **Resources**: `app/Http/Resources/`
+- ✅ **Models**: `app/Models/`
+- ✅ **Policies**: `app/Policies/`
+- ✅ **Migrations**: `database/migrations/`
+
+### Import Examples
+
+**Correct Nuxt Imports:**
+
+```typescript
+// In app/pages/login.vue
+import { useAuth } from "../composables/useAuth";
+import { useAuthStore } from "../stores/auth";
+import type { LoginCredentials } from "../composables/useAuth";
+
+// In app/pages/dashboard/surveys/index.vue
+import { useSurvey } from "../../composables/useSurvey";
+import { useAuthStore } from "../../stores/auth";
+import type { Survey } from "../../stores/survey";
+```
+
+**Laravel Route Example:**
+
+```php
+// routes/api.php
+Route::prefix('v1')->group(function () {
+    // Public routes
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+
+    // Protected routes
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::apiResource('surveys', SurveyController::class);
+    });
+});
+```
+
+### Testing Checklist
+
+**Before Committing:**
+
+- [ ] Backend tests pass: `php artisan test`
+- [ ] Frontend builds: `npm run build`
+- [ ] No linter errors: `npm run lint`
+- [ ] TypeScript checks: `npm run type-check`
+- [ ] Manual testing of changed features
+- [ ] API endpoints tested via Postman/curl
+- [ ] Check console for errors
+- [ ] Test authentication flow
+
+### Common Gotchas
+
+**Nuxt:**
+
+1. ❌ Don't use `~/` alias for imports (causes resolution issues)
+2. ❌ Don't put files outside `app/` directory
+3. ✅ Always use relative paths within `app/`
+4. ✅ Restart dev server after changing `nuxt.config.ts`
+5. ✅ Clear `.nuxt` cache if imports break: `rm -rf .nuxt`
+
+**Laravel:**
+
+1. ✅ Always validate inputs via Form Requests
+2. ✅ Use API Resources for responses
+3. ✅ Protect routes with `auth:sanctum` middleware
+4. ✅ Check authorization with Policies
+5. ✅ Version your API routes (`/api/v1/`)
+
 ## Resources and Documentation
 
 For questions or issues, refer to the official documentation:
@@ -1358,3 +1607,9 @@ For questions or issues, refer to the official documentation:
 - [Nuxt.js 4 Documentation](https://nuxt.com/docs)
 - [Pinia Documentation](https://pinia.vuejs.org/)
 - [Tailwind CSS v4](https://tailwindcss.com/docs)
+
+---
+
+**Last Updated**: October 6, 2025
+**Project Status**: ✅ MVP Complete - Authentication, Survey CRUD, and UI fully functional
+**Next Steps**: Add survey questions, responses, and reporting features
