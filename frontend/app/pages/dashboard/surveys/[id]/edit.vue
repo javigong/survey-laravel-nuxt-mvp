@@ -92,6 +92,13 @@
           >
             {{ loading ? "Saving..." : "Save Changes" }}
           </button>
+          <button
+            v-if="surveyForm.status === 'published'"
+            @click="shareSurvey"
+            class="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-md hover:bg-indigo-100 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-800 dark:hover:bg-indigo-900/30"
+          >
+            Share Survey
+          </button>
           <NuxtLink
             to="/dashboard/surveys"
             class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600"
@@ -131,58 +138,90 @@
           </p>
         </div>
 
-        <!-- Questions List -->
-        <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
-          <div
-            v-for="(question, index) in questions"
-            :key="question.id || `new-${index}`"
-            class="p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+        <!-- Questions List with Drag and Drop -->
+        <div v-else>
+          <draggable
+            v-model="questions"
+            :animation="200"
+            ghost-class="opacity-50"
+            chosen-class="bg-indigo-50 dark:bg-indigo-900/20"
+            drag-class="shadow-lg"
+            @end="onQuestionReorder"
+            class="divide-y divide-gray-200 dark:divide-gray-700"
+            item-key="id"
           >
-            <div class="flex justify-between items-start">
-              <div class="flex items-start space-x-4 flex-1">
-                <div class="flex items-center space-x-1 text-gray-400">
-                  <span class="text-sm font-medium">{{ index + 1 }}</span>
-                  <span class="text-lg">{{
-                    getQuestionTypeIcon(question.type)
-                  }}</span>
-                </div>
-                <div>
-                  <h4 class="text-sm font-medium text-gray-900 dark:text-white">
-                    {{ question.title || "Untitled Question" }}
-                  </h4>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">
-                    {{ getQuestionTypeName(question.type) }}
-                    <span v-if="question.is_required" class="text-red-500 ml-1"
-                      >*</span
+            <template #item="{ element: question, index }">
+              <div
+                :key="question.id || `new-${index}`"
+                class="p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-move group"
+              >
+                <div class="flex justify-between items-start">
+                  <div class="flex items-start space-x-4 flex-1">
+                    <!-- Drag Handle -->
+                    <div class="flex items-center space-x-2">
+                      <div
+                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-move"
+                      >
+                        <svg
+                          class="w-5 h-5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            d="M7 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"
+                          />
+                        </svg>
+                      </div>
+                      <div class="flex items-center space-x-1 text-gray-400">
+                        <span class="text-sm font-medium">{{ index + 1 }}</span>
+                        <span class="text-lg">{{
+                          getQuestionTypeIcon(question.type)
+                        }}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <h4
+                        class="text-sm font-medium text-gray-900 dark:text-white"
+                      >
+                        {{ question.title || "Untitled Question" }}
+                      </h4>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">
+                        {{ getQuestionTypeName(question.type) }}
+                        <span
+                          v-if="question.is_required"
+                          class="text-red-500 ml-1"
+                          >*</span
+                        >
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex space-x-2">
+                    <button
+                      @click="editQuestion(index)"
+                      class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 text-sm"
                     >
-                  </p>
+                      Edit
+                    </button>
+                    <button
+                      @click="duplicateQuestion(index)"
+                      class="text-gray-600 hover:text-gray-900 dark:text-gray-400 text-sm"
+                    >
+                      Duplicate
+                    </button>
+                    <button
+                      @click="deleteQuestion(index)"
+                      class="text-red-600 hover:text-red-900 dark:text-red-400 text-sm"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+                <div class="mt-4 pl-8">
+                  <QuestionPreview :question="question" />
                 </div>
               </div>
-              <div class="flex space-x-2">
-                <button
-                  @click="editQuestion(index)"
-                  class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 text-sm"
-                >
-                  Edit
-                </button>
-                <button
-                  @click="duplicateQuestion(index)"
-                  class="text-gray-600 hover:text-gray-900 dark:text-gray-400 text-sm"
-                >
-                  Duplicate
-                </button>
-                <button
-                  @click="deleteQuestion(index)"
-                  class="text-red-600 hover:text-red-900 dark:text-red-400 text-sm"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-            <div class="mt-4 pl-8">
-              <QuestionPreview :question="question" />
-            </div>
-          </div>
+            </template>
+          </draggable>
         </div>
       </div>
     </div>
@@ -215,6 +254,7 @@ import { useAuthStore } from "~/stores/auth";
 import type { Question } from "~/stores/survey";
 import QuestionPreview from "~/components/QuestionPreview.vue";
 import QuestionEditor from "~/components/QuestionEditor.vue";
+import draggable from "vuedraggable";
 
 definePageMeta({
   layout: "dashboard",
@@ -227,6 +267,7 @@ const {
   createQuestion,
   updateQuestion,
   deleteQuestion: deleteQuestionApi,
+  reorderQuestions,
 } = useSurvey();
 const authStore = useAuthStore();
 const router = useRouter();
@@ -475,6 +516,45 @@ const getQuestionTypeIcon = (type: string) => {
 const getQuestionTypeName = (type: string) => {
   const typeConfig = questionTypes.find((t) => t.type === type);
   return typeConfig?.name || type;
+};
+
+const onQuestionReorder = async () => {
+  try {
+    const surveyId = parseInt(route.params.id as string);
+
+    // Update the order property for each question based on new position
+    questions.value.forEach((question, index) => {
+      question.order = index;
+    });
+
+    // Get question IDs in the new order
+    const questionIds = questions.value
+      .filter((q) => q.id && q.id !== 0) // Only include saved questions
+      .map((q) => q.id!);
+
+    if (questionIds.length > 0) {
+      await reorderQuestions(surveyId, questionIds);
+    }
+  } catch (err: any) {
+    console.error("Failed to reorder questions:", err);
+    error.value = "Failed to reorder questions";
+  }
+};
+
+const shareSurvey = () => {
+  const surveyId = route.params.id as string;
+  const publicUrl = `${window.location.origin}/survey/${surveyId}`;
+
+  // Copy to clipboard
+  navigator.clipboard
+    .writeText(publicUrl)
+    .then(() => {
+      alert("Survey link copied to clipboard!");
+    })
+    .catch(() => {
+      // Fallback: show the URL in a prompt
+      prompt("Copy this survey link:", publicUrl);
+    });
 };
 
 // Load survey data on mount
