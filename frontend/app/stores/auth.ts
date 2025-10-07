@@ -67,6 +67,10 @@ export const useAuthStore = defineStore('auth', {
           this.isAuthenticated = true
           // TODO: Fetch user data from API if needed
         }
+      } else {
+        // During SSR, check if we have a token in the request
+        // This is a simplified approach - in a real app you'd want to verify the token
+        this.isAuthenticated = !!this.token
       }
     },
   },
