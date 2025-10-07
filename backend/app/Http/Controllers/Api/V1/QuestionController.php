@@ -26,6 +26,23 @@ class QuestionController extends Controller
     }
 
     /**
+     * Display a listing of questions for a published survey (public access).
+     */
+    public function indexPublic(Survey $survey): JsonResponse
+    {
+        // Only allow access to published surveys
+        if ($survey->status !== 'published') {
+            return response()->json([
+                'message' => 'Survey not found or not available'
+            ], 404);
+        }
+
+        $questions = $survey->questions()->orderBy('order')->get();
+
+        return QuestionResource::collection($questions)->response();
+    }
+
+    /**
      * Store a newly created question.
      */
     public function store(StoreQuestionRequest $request): JsonResponse
