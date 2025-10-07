@@ -11,22 +11,11 @@ export default defineNuxtConfig({
     "@vueuse/nuxt",
   ],
 
-  // Pages configuration
-  pages: true,
-
-  // Components configuration
-  components: [
-    {
-      path: "./app/components/ui",
-      pathPrefix: false,
-      global: true,
-    },
-  ],
-
-  // Auto-imports configuration
-  imports: {
-    dirs: ["./app/composables", "./app/stores"],
-  },
+  // Nuxt 4 app directory structure
+  // Pages are automatically discovered from app/pages/
+  // Components are automatically discovered from app/components/
+  // Composables are automatically discovered from app/composables/
+  // No need for explicit configuration for these in Nuxt 4
 
   // Tailwind CSS configuration
   tailwindcss: {
@@ -45,10 +34,7 @@ export default defineNuxtConfig({
     storageKey: "nuxt-color-mode",
   },
 
-  // Pinia configuration
-  pinia: {
-    storesDirs: ["./app/stores/**"],
-  },
+  // Pinia stores are automatically discovered from app/stores/ in Nuxt 4
 
   // TypeScript configuration - temporarily disabled for debugging
   typescript: {
