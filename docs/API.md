@@ -623,6 +623,130 @@ Content-Type: application/json
 }
 ```
 
+### Response Endpoints
+
+#### Submit Survey Response
+
+**POST** `/surveys/{survey}/responses`
+
+Submits a response to a published survey. This endpoint is public and does not require authentication.
+
+**Request Body:**
+
+```json
+{
+  "respondent_id": "string (required, max:255)",
+  "answers": [
+    {
+      "question_id": "integer (required)",
+      "value": "mixed (required)"
+    }
+  ]
+}
+```
+
+**Response (201 Created):**
+
+```json
+{
+  "message": "Response submitted successfully",
+  "respondent_id": "respondent_1234567890_abc123"
+}
+```
+
+**Error Responses:**
+
+- `404 Not Found` - Survey not found or not published
+- `422 Unprocessable Entity` - Validation errors
+- `500 Internal Server Error` - Server error
+
+#### View Survey Responses (Owner Only)
+
+**GET** `/surveys/{survey}/responses`
+
+Retrieves all responses for a survey. Only the survey owner can access this endpoint.
+
+**Headers:**
+
+```http
+Authorization: Bearer {token}
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "data": {
+    "respondent_1234567890_abc123": [
+      {
+        "id": 1,
+        "question_id": 1,
+        "survey_id": 1,
+        "respondent_id": "respondent_1234567890_abc123",
+        "text_answer": "Sample response",
+        "created_at": "2025-01-07T10:00:00.000000Z",
+        "updated_at": "2025-01-07T10:00:00.000000Z"
+      }
+    ]
+  },
+  "message": "Responses retrieved successfully"
+}
+```
+
+### Public Survey Endpoints
+
+#### View Published Survey
+
+**GET** `/surveys/{survey}/public`
+
+Retrieves a published survey for public viewing. No authentication required.
+
+**Response (200 OK):**
+
+```json
+{
+  "data": {
+    "id": 1,
+    "title": "Customer Feedback Survey",
+    "description": "Help us improve our service",
+    "status": "published",
+    "question_count": 5,
+    "response_count": 12,
+    "created_at": "2025-01-07T10:00:00.000000Z",
+    "updated_at": "2025-01-07T10:00:00.000000Z"
+  }
+}
+```
+
+#### View Survey Questions (Public)
+
+**GET** `/surveys/{survey}/questions/public`
+
+Retrieves questions for a published survey. No authentication required.
+
+**Response (200 OK):**
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "survey_id": 1,
+      "title": "How satisfied are you with our service?",
+      "description": "Please rate your overall satisfaction",
+      "type": "rating_scale",
+      "type_display": "Rating Scale",
+      "options": null,
+      "validation_rules": null,
+      "is_required": true,
+      "order": 1,
+      "created_at": "2025-01-07T10:00:00.000000Z",
+      "updated_at": "2025-01-07T10:00:00.000000Z"
+    }
+  ]
+}
+```
+
 ## Question Types
 
 ### Supported Question Types
