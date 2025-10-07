@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\QuestionController;
 use App\Http\Controllers\Api\V1\SurveyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -23,13 +24,10 @@ Route::prefix('v1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
 
-    // CSRF cookie route for SPA authentication
-    Route::get('/sanctum/csrf-cookie', function (Request $request) {
-        return response()->json(['message' => 'CSRF cookie set']);
-    })->middleware('web');
+    // Note: CSRF cookie route is not required for bearer token auth
 
-    // Protected routes (authentication required)
-    Route::middleware('auth:sanctum')->group(function () {
+    // Protected routes (authentication & rate limit applied)
+    Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
 
         // Authentication routes
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -38,9 +36,13 @@ Route::prefix('v1')->group(function () {
         // Survey resource routes
         Route::apiResource('surveys', SurveyController::class);
 
-        // Additional survey-related routes can be added here
-        // Route::get('/surveys/{survey}/questions', [QuestionController::class, 'index']);
-        // Route::get('/surveys/{survey}/responses', [ResponseController::class, 'index']);
+        // Question routes for surveys
+        Route::get('/surveys/{survey}/questions', [QuestionController::class, 'index']);
+        Route::post('/surveys/{survey}/questions', [QuestionController::class, 'store']);
+        Route::get('/questions/{question}', [QuestionController::class, 'show']);
+        Route::put('/questions/{question}', [QuestionController::class, 'update']);
+        Route::delete('/questions/{question}', [QuestionController::class, 'destroy']);
+        Route::post('/surveys/{survey}/questions/reorder', [QuestionController::class, 'reorder']);
 
     });
 
