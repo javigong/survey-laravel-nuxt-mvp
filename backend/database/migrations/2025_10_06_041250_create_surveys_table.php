@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('surveys', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade')->index();
             $table->string('title');
             $table->text('description')->nullable();
             $table->enum('status', ['draft', 'published', 'closed'])->default('draft');
+            $table->index('status');
             $table->timestamps();
         });
     }
