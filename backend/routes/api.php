@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\QuestionController;
+use App\Http\Controllers\Api\V1\ResponseController;
 use App\Http\Controllers\Api\V1\SurveyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,11 @@ Route::prefix('v1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
 
+    // Public survey routes (no auth required)
+    Route::get('/surveys/{survey}/public', [SurveyController::class, 'showPublic']); // Public survey viewing
+    Route::get('/surveys/{survey}/questions/public', [QuestionController::class, 'indexPublic']); // Public questions viewing
+    Route::post('/surveys/{survey}/responses', [ResponseController::class, 'store']); // Public response submission
+
     // Note: CSRF cookie route is not required for bearer token auth
 
     // Protected routes (authentication & rate limit applied)
@@ -43,6 +49,9 @@ Route::prefix('v1')->group(function () {
         Route::put('/questions/{question}', [QuestionController::class, 'update']);
         Route::delete('/questions/{question}', [QuestionController::class, 'destroy']);
         Route::post('/surveys/{survey}/questions/reorder', [QuestionController::class, 'reorder']);
+
+        // Response routes for surveys (survey owner only)
+        Route::get('/surveys/{survey}/responses', [ResponseController::class, 'index']);
 
     });
 
