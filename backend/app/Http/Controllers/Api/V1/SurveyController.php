@@ -57,6 +57,21 @@ class SurveyController extends Controller
     }
 
     /**
+     * Display a published survey for public viewing.
+     */
+    public function showPublic(Survey $survey): JsonResponse
+    {
+        // Only allow access to published surveys
+        if ($survey->status !== 'published') {
+            return response()->json([
+                'message' => 'Survey not found or not available'
+            ], 404);
+        }
+
+        return SurveyResource::make($survey)->response();
+    }
+
+    /**
      * Update the specified survey.
      */
     public function update(StoreSurveyRequest $request, Survey $survey): JsonResponse
