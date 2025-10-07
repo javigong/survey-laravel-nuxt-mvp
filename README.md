@@ -51,22 +51,25 @@ survey-laravel-nuxt-mvp/
 ### ✅ Implemented
 
 - **Authentication**: Register, login, logout with Laravel Sanctum
-- **Survey Management**: Full CRUD operations
-  - Create, read, update, delete surveys
-  - Filter by status (draft, published, closed)
-  - Search by title
-- **Authorization**: Users can only manage their own surveys
-- **Responsive UI**: Modern design with Tailwind CSS
-- **Type Safety**: Full TypeScript support
-- **State Management**: Pinia with persistence
+- **Survey Management**: Full CRUD operations with filtering and search
+- **Question Builder**: 11 different question types with real-time preview
+- **Question Management**: Create, edit, duplicate, delete, and reorder questions
+- **Authorization**: Users can only manage their own surveys and questions
+- **Responsive UI**: Modern design with Tailwind CSS and dark mode
+- **Type Safety**: Full TypeScript support throughout
+- **State Management**: Pinia with persistence and reactive updates
+- **API**: Comprehensive RESTful API with documentation
+- **Security**: CSRF protection, XSS prevention, rate limiting
 
 ### 🚧 Planned
 
-- Survey questions and answer types
-- Survey responses collection
-- Analytics and reporting
-- Email notifications
-- Survey sharing and public links
+- Survey response collection and management
+- Analytics dashboard with insights
+- Advanced question types (matrix, ranking)
+- Conditional logic for questions
+- Survey templates and sharing
+- Real-time collaboration
+- Mobile applications
 
 ## 🛠 Technology Stack
 
@@ -88,9 +91,23 @@ survey-laravel-nuxt-mvp/
 
 ## 📖 Documentation
 
-For detailed setup instructions, architecture decisions, and best practices, see:
+### Quick Start
 
-- [SETUP_GUIDE.md](./SETUP_GUIDE.md) - Complete setup and development guide
+- **[Documentation Index](docs/INDEX.md)** - Complete documentation overview
+- **[Project Summary](docs/PROJECT_SUMMARY.md)** - Executive summary and architecture
+- **[Features Overview](docs/FEATURES.md)** - Complete feature list and roadmap
+
+### Technical Documentation
+
+- **[API Documentation](docs/API.md)** - Complete API reference with examples
+- **[Frontend Documentation](docs/FRONTEND.md)** - Vue.js/Nuxt.js development guide
+- **[Deployment Guide](docs/DEPLOYMENT.md)** - Production deployment instructions
+
+### Development
+
+- **[Contributing Guide](docs/CONTRIBUTING.md)** - How to contribute to the project
+- **[Setup Guide](SETUP_GUIDE.md)** - Detailed setup and development guide
+- **[Changelog](docs/CHANGELOG.md)** - Version history and changes
 
 ## 🏗 Architecture Highlights
 
@@ -134,18 +151,25 @@ cd frontend && npm run test
 
 ### Public Routes
 
-- `POST /api/v1/register` - User registration
-- `POST /api/v1/login` - User login
+- `POST /api/v1/auth/register` - User registration
+- `POST /api/v1/auth/login` - User login
 
 ### Protected Routes (requires authentication)
 
-- `POST /api/v1/logout` - User logout
-- `GET /api/v1/user` - Get current user
+- `POST /api/v1/auth/logout` - User logout
 - `GET /api/v1/surveys` - List user's surveys
 - `POST /api/v1/surveys` - Create survey
 - `GET /api/v1/surveys/{id}` - Get survey details
 - `PUT /api/v1/surveys/{id}` - Update survey
 - `DELETE /api/v1/surveys/{id}` - Delete survey
+- `GET /api/v1/surveys/{survey}/questions` - List survey questions
+- `POST /api/v1/surveys/{survey}/questions` - Create question
+- `GET /api/v1/questions/{id}` - Get question details
+- `PUT /api/v1/questions/{id}` - Update question
+- `DELETE /api/v1/questions/{id}` - Delete question
+- `POST /api/v1/surveys/{survey}/questions/reorder` - Reorder questions
+
+> **📚 Complete API Documentation**: See [API.md](docs/API.md) for detailed endpoint documentation with examples.
 
 ## 🤝 Contributing
 
@@ -167,5 +191,6 @@ This project is open-source and available for educational purposes.
 
 ---
 
-**Status**: ✅ MVP Complete  
-**Last Updated**: October 6, 2025
+**Status**: ✅ Production Ready  
+**Version**: 1.0.0  
+**Last Updated**: January 7, 2025
