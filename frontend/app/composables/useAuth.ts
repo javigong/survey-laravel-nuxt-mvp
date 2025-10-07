@@ -1,4 +1,5 @@
 import type { User } from "../stores/auth";
+import { useAuthStore } from "../stores/auth";
 
 export interface LoginCredentials {
   email: string;
