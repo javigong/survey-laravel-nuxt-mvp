@@ -54,6 +54,10 @@ survey-laravel-nuxt-mvp/
 - **Survey Management**: Full CRUD operations with filtering and search
 - **Question Builder**: 11 different question types with real-time preview
 - **Question Management**: Create, edit, duplicate, delete, and reorder questions
+- **Drag-and-Drop Reordering**: Intuitive question reordering with visual feedback
+- **Survey Response Interface**: Public survey taking with comprehensive question support
+- **Survey Sharing**: One-click sharing with public URLs for published surveys
+- **Response Collection**: Complete answer storage and management system
 - **Authorization**: Users can only manage their own surveys and questions
 - **Responsive UI**: Modern design with Tailwind CSS and dark mode
 - **Type Safety**: Full TypeScript support throughout
@@ -63,7 +67,6 @@ survey-laravel-nuxt-mvp/
 
 ### 🚧 Planned
 
-- Survey response collection and management
 - Analytics dashboard with insights
 - Advanced question types (matrix, ranking)
 - Conditional logic for questions
@@ -153,6 +156,9 @@ cd frontend && npm run test
 
 - `POST /api/v1/auth/register` - User registration
 - `POST /api/v1/auth/login` - User login
+- `GET /api/v1/surveys/{id}/public` - View published survey (public)
+- `GET /api/v1/surveys/{id}/questions/public` - View survey questions (public)
+- `POST /api/v1/surveys/{id}/responses` - Submit survey response (public)
 
 ### Protected Routes (requires authentication)
 
@@ -168,6 +174,7 @@ cd frontend && npm run test
 - `PUT /api/v1/questions/{id}` - Update question
 - `DELETE /api/v1/questions/{id}` - Delete question
 - `POST /api/v1/surveys/{survey}/questions/reorder` - Reorder questions
+- `GET /api/v1/surveys/{survey}/responses` - View survey responses (owner only)
 
 > **📚 Complete API Documentation**: See [API.md](docs/API.md) for detailed endpoint documentation with examples.
 
