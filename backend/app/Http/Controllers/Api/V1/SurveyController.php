@@ -7,6 +7,7 @@ use App\Http\Requests\StoreSurveyRequest;
 use App\Http\Resources\SurveyResource;
 use App\Models\Survey;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class SurveyController extends Controller
@@ -17,9 +18,11 @@ class SurveyController extends Controller
     public function index(): JsonResponse
     {
         $surveys = QueryBuilder::for(Survey::class)
-            ->where('user_id', auth()->id())
+            ->where('user_id', Auth::id())
             ->allowedFilters(['title', 'status'])
             ->allowedSorts(['created_at', 'title', 'updated_at'])
+            ->defaultSort('-created_at')
+            ->allowedIncludes(['questions'])
             ->paginate(15);
 
         return SurveyResource::collection($surveys)->response();
@@ -31,7 +34,7 @@ class SurveyController extends Controller
     public function store(StoreSurveyRequest $request): JsonResponse
     {
         $survey = Survey::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'title' => $request->title,
             'description' => $request->description,
             'status' => $request->status ?? 'draft',
