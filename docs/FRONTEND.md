@@ -35,7 +35,9 @@ frontend/
 │   │   │       ├── index.vue   # Survey list
 │   │   │       ├── create.vue  # Create survey
 │   │   │       └── [id]/       # Dynamic survey pages
-│   │   │           └── edit.vue # Edit survey
+│   │   │           └── edit.vue # Edit survey with drag-and-drop
+│   │   ├── survey/             # Public survey pages
+│   │   │   └── [id].vue        # Public survey response interface
 │   │   ├── login.vue           # Login page
 │   │   ├── register.vue        # Registration page
 │   │   └── question-builder.vue # Standalone question builder
@@ -136,6 +138,90 @@ interface Props {
 ```vue
 <template>
   <QuestionPreview :question="question" />
+</template>
+```
+
+### Survey Response Interface
+
+**File**: `app/pages/survey/[id].vue`
+
+A public survey response interface that allows anonymous users to take surveys without authentication.
+
+#### Features
+
+- **Public Access**: No authentication required
+- **Comprehensive Question Support**: All 11 question types supported
+- **Real-time Validation**: Client-side validation with visual feedback
+- **Responsive Design**: Mobile-optimized interface
+- **Answer Collection**: Flexible answer storage for different question types
+- **Success Confirmation**: Clear feedback after submission
+- **Error Handling**: Comprehensive error states and recovery
+
+#### Question Type Support
+
+| Type                       | Input Type     | Validation           | Options Required |
+| -------------------------- | -------------- | -------------------- | ---------------- |
+| `text_short`               | Text input     | Required field       | No               |
+| `text_long`                | Textarea       | Required field       | No               |
+| `multiple_choice_single`   | Radio buttons  | Required field       | Yes              |
+| `multiple_choice_multiple` | Checkboxes     | Required field       | Yes              |
+| `rating_scale`             | Radio buttons  | Required field       | No               |
+| `yes_no`                   | Radio buttons  | Required field       | No               |
+| `dropdown`                 | Select         | Required field       | Yes              |
+| `date`                     | Date input     | Required field       | No               |
+| `time`                     | Time input     | Required field       | No               |
+| `datetime`                 | DateTime input | Required field       | No               |
+| `file_upload`              | File input     | File type validation | No               |
+
+#### Usage Example
+
+```vue
+<template>
+  <!-- Public survey response interface -->
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Survey header with title and description -->
+    <!-- Question forms with dynamic input types -->
+    <!-- Submit button with loading states -->
+  </div>
+</template>
+```
+
+### Drag-and-Drop Question Reordering
+
+**File**: `app/pages/dashboard/surveys/[id]/edit.vue`
+
+Enhanced survey edit page with drag-and-drop functionality for reordering questions.
+
+#### Features
+
+- **Vue Draggable Integration**: Smooth drag-and-drop with visual feedback
+- **Real-time Reordering**: Questions reorder instantly with animations
+- **Visual Indicators**: Drag handles, hover states, and drop zones
+- **Backend Synchronization**: Automatic API calls to save new order
+- **Error Handling**: Graceful fallback if reordering fails
+
+#### Dependencies
+
+- **vuedraggable@next**: Vue 3 compatible drag-and-drop library
+
+#### Usage Example
+
+```vue
+<template>
+  <draggable
+    v-model="questions"
+    :animation="200"
+    ghost-class="opacity-50"
+    chosen-class="bg-indigo-50 dark:bg-indigo-900/20"
+    drag-class="shadow-lg"
+    @end="onQuestionReorder"
+    class="divide-y divide-gray-200 dark:divide-gray-700"
+    item-key="id"
+  >
+    <template #item="{ element: question, index }">
+      <!-- Question item with drag handle -->
+    </template>
+  </draggable>
 </template>
 ```
 
