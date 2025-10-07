@@ -27,7 +27,17 @@
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
       <div class="px-4 py-6 sm:px-0">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <!-- Debug info -->
+        <div class="bg-yellow-100 p-4 mb-4">
+          <p>Debug: Route path = "{{ route.path }}"</p>
+          <p>Debug: Is dashboard? {{ route.path === "/dashboard" }}</p>
+        </div>
+
+        <!-- Show dashboard content only for /dashboard route -->
+        <div
+          v-if="route.path === '/dashboard'"
+          class="bg-white dark:bg-gray-800 rounded-lg shadow p-6"
+        >
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
             Welcome to Your Dashboard
           </h2>
@@ -76,22 +86,32 @@
             </p>
           </div>
         </div>
+
+        <!-- Show child pages for other dashboard routes -->
+        <NuxtPage v-else />
       </div>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useAuth } from "../composables/useAuth";
+import { useAuth } from "~/composables/useAuth";
+import { useAuthStore } from "~/stores/auth";
 
 const { logout } = useAuth();
 const authStore = useAuthStore();
 const router = useRouter();
+const route = useRoute();
 
-// Redirect to login if not authenticated
-if (!authStore.isLoggedIn) {
-  await router.push("/login");
-}
+// Debug route path
+console.log("Current route path:", route.path);
+
+// Redirect to login if not authenticated (only on client side)
+onMounted(() => {
+  if (!authStore.isLoggedIn) {
+    router.push("/login");
+  }
+});
 
 const handleLogout = async () => {
   try {
