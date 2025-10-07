@@ -1,41 +1,16 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <!-- Navigation -->
-    <nav class="bg-white dark:bg-gray-800 shadow">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex items-center space-x-8">
-            <NuxtLink
-              to="/dashboard"
-              class="text-xl font-bold text-gray-900 dark:text-white"
-            >
-              Survey MVP
-            </NuxtLink>
-            <NuxtLink
-              to="/dashboard/surveys"
-              class="text-indigo-600 dark:text-indigo-400 font-medium"
-            >
-              Surveys
-            </NuxtLink>
-          </div>
-          <div class="flex items-center space-x-4">
-            <span class="text-gray-700 dark:text-gray-300">
-              {{ authStore.user?.name }}
-            </span>
-            <button
-              @click="handleLogout"
-              class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
-
+  <div>
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
       <div class="px-4 py-6 sm:px-0">
+        <!-- Back Button -->
+        <NuxtLink
+          to="/dashboard"
+          class="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 mb-6"
+        >
+          ← Back to Dashboard
+        </NuxtLink>
+
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
           <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
@@ -114,6 +89,16 @@
                 <th
                   class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                 >
+                  Questions
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                >
+                  Responses
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                >
                   Status
                 </th>
                 <th
@@ -145,6 +130,51 @@
                     >
                       {{ survey.description }}
                     </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center space-x-2">
+                    <span
+                      class="text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      {{ survey.question_count || 0 }}
+                    </span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                      questions
+                    </span>
+                  </div>
+                  <div
+                    v-if="survey.questions && survey.questions.length > 0"
+                    class="mt-1"
+                  >
+                    <div class="flex flex-wrap gap-1">
+                      <span
+                        v-for="question in survey.questions.slice(0, 3)"
+                        :key="question.id"
+                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                      >
+                        {{ getQuestionTypeIcon(question.type) }}
+                        {{ question.type_display }}
+                      </span>
+                      <span
+                        v-if="survey.questions.length > 3"
+                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
+                      >
+                        +{{ survey.questions.length - 3 }} more
+                      </span>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center space-x-2">
+                    <span
+                      class="text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      {{ survey.response_count || 0 }}
+                    </span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                      responses
+                    </span>
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -292,14 +322,7 @@ const handleDelete = async () => {
   }
 };
 
-const handleLogout = async () => {
-  try {
-    await logout();
-    await router.push("/login");
-  } catch (error: any) {
-    await router.push("/login");
-  }
-};
+// Logout is handled by parent dashboard layout
 
 const getStatusClass = (status: string) => {
   switch (status) {
@@ -318,6 +341,24 @@ const formatDate = (dateString: string) => {
     month: "short",
     day: "numeric",
   });
+};
+
+const getQuestionTypeIcon = (type: string) => {
+  const icons: Record<string, string> = {
+    multiple_choice_single: "🔘",
+    multiple_choice_multiple: "☑️",
+    text_short: "📝",
+    text_long: "📄",
+    rating_scale: "⭐",
+    yes_no: "✅",
+    dropdown: "📋",
+    checkbox: "☑️",
+    date: "📅",
+    time: "🕐",
+    datetime: "📅",
+    file_upload: "📎",
+  };
+  return icons[type] || "❓";
 };
 
 // Load surveys on mount
