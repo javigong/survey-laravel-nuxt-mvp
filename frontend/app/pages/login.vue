@@ -82,8 +82,9 @@
 </template>
 
 <script setup lang="ts">
-import { useAuth } from "../composables/useAuth";
-import type { LoginCredentials } from "../composables/useAuth";
+import { useAuth } from "~/composables/useAuth";
+import type { LoginCredentials } from "~/composables/useAuth";
+import { useAuthStore } from "~/stores/auth";
 
 const { login } = useAuth();
 const authStore = useAuthStore();
