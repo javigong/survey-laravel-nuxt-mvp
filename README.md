@@ -188,7 +188,7 @@ cd frontend && npm run test
 
 ## 📄 License
 
-This project is open-source and available for educational purposes.
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT) and is suitable for educational purposes. See the LICENSE file for details.
 
 ## 🙏 Acknowledgments
 
@@ -198,7 +198,7 @@ This project is open-source and available for educational purposes.
 
 ---
 
-**Status**: ✅ Production Ready  
-**Version**: 1.0.0  
-**Last Updated**: October 7, 2025
-**Author**: Javier Gongora
+- **Status**: ✅ Production Ready  
+- **Version**: 1.0.0  
+- **Last Updated**: October 7, 2025
+- **Author**: Javier Gongora
