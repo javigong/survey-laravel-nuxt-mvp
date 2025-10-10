@@ -301,7 +301,12 @@ const newQuestion = ref<Question>({
   updated_at: new Date().toISOString(),
 });
 
-const questionTypes = [
+const questionTypes: Array<{
+  type: Question["type"];
+  name: string;
+  icon: string;
+  description: string;
+}> = [
   {
     type: "text_short",
     name: "Short Text",
@@ -416,11 +421,13 @@ const editQuestion = (index: number) => {
 const duplicateQuestion = (index: number) => {
   const original = questions.value[index];
   const duplicated = { ...original, id: 0, order: questions.value.length }; // Reset ID for new question
-  questions.value.splice(index + 1, 0, duplicated);
+  questions.value.splice(index + 1, 0, duplicated as Question);
 };
 
 const deleteQuestion = async (index: number) => {
   const question = questions.value[index];
+  if (!question) return;
+
   if (question.id && question.id !== 0) {
     // Delete from API if it exists
     try {
@@ -445,10 +452,29 @@ const handleSaveQuestion = async (questionData: Partial<Question>) => {
   } else {
     // Edit existing question
     const question = questions.value[editingQuestion.value];
-    if (question.id && question.id !== 0) {
+    if (question && question.id && question.id !== 0) {
       // Update existing question via API
       try {
-        const updatedQuestion = await updateQuestion(question.id, questionData);
+        const questionUpdateData: Partial<CreateQuestionData> = {
+          survey_id: question.survey_id,
+          title: questionData.title ?? question.title,
+          description:
+            questionData.description !== undefined
+              ? questionData.description ?? undefined
+              : question.description ?? undefined,
+          type: questionData.type ?? question.type,
+          options: questionData.options ?? question.options ?? undefined,
+          validation_rules:
+            questionData.validation_rules ??
+            question.validation_rules ??
+            undefined,
+          is_required: questionData.is_required ?? question.is_required,
+          order: questionData.order ?? question.order,
+        };
+        const updatedQuestion = await updateQuestion(
+          question.id,
+          questionUpdateData
+        );
         questions.value[editingQuestion.value] = updatedQuestion;
       } catch (err: any) {
         error.value = err.message;
@@ -459,7 +485,7 @@ const handleSaveQuestion = async (questionData: Partial<Question>) => {
       questions.value[editingQuestion.value] = {
         ...questions.value[editingQuestion.value],
         ...questionData,
-      };
+      } as Question;
     }
   }
   showQuestionEditor.value = false;
@@ -493,10 +519,10 @@ const saveSurvey = async () => {
 
       if (q.id && q.id !== 0) {
         // Update existing question
-        await updateQuestion(q.id, questionData);
+        await updateQuestion(q.id, questionData as CreateQuestionData);
       } else {
         // Create new question
-        await createQuestion(questionData);
+        await createQuestion(questionData as CreateQuestionData);
       }
     }
 
