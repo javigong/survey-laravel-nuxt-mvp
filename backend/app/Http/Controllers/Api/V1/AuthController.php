@@ -7,6 +7,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -64,7 +65,7 @@ class AuthController extends Controller
      */
     public function logout(): JsonResponse
     {
-        auth()->user()->currentAccessToken()->delete();
+        Auth::user()->User::currentAccessToken()->delete();
 
         return response()->json([
             'message' => 'Logged out successfully'
@@ -77,7 +78,7 @@ class AuthController extends Controller
     public function user(): JsonResponse
     {
         return response()->json([
-            'data' => UserResource::make(auth()->user()),
+            'data' => UserResource::make(Auth::user()),
             'message' => 'User information retrieved successfully'
         ]);
     }
